@@ -3,18 +3,20 @@ body {
 }
   
 .search-bar {
+    display: flex;
     margin: 30px 0;
 }
   
 .shows-wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: wrap;
 }
   
 .shows-wrapper .card {
     width: 24%;
-    margin-bottom: 1.5%;
+    margin: 1% 0.5%;
+    padding: 1%;
 }
   
 .show-preview {
@@ -40,4 +42,9 @@ body {
     height: 45%;
     background-position: center;
     background-size: cover;
+}
+
+.form-control {
+    width: 12.3%;
+    margin-left: 10px;
 }

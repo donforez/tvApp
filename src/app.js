@@ -29,11 +29,26 @@ class tvApp {
         Object.keys(this.showNameButtons).forEach(showName => {
             this.showNameButtons[showName].addEventListener('click', this.setCurrentNameFilter)
         })
-    }
+        this.completedInput = this.viewElems.nameValue
+        this.completedInput.addEventListener('keydown', this.handleKeyUp)
+    } 
 
-    setCurrentNameFilter = () => {
+    setCurrentNameFilter = event => {
         this.selectedName = event.target.dataset.showName
         this.fetchAndDisplayShows()
+    }
+
+    handleKeyUp = event => {
+        if (event.key === 'Enter') {
+            if (this.completedInput.value.trim() === '') {
+                this.completedInput.style.border = 'solid red';
+            } else {
+                this.completedInput.style.border = 'none';
+                this.selectedName = this.completedInput.value
+                this.completedInput.value = '';
+                this.fetchAndDisplayShows() 
+            }
+        }
     }
 
     fetchAndDisplayShows = () => {
@@ -45,7 +60,6 @@ class tvApp {
             document.querySelectorAll('[data-show-id]')
         ).forEach(btn => btn.removeEventListener('click', this.openDetailsView))
         this.viewElems.showsWrapper.innerHTML = ""
-
         for (const { show } of shows) {
             const card = this.createShowCard(show)
             this.viewElems.showsWrapper.appendChild(card)
@@ -67,6 +81,7 @@ class tvApp {
         closeBtn.removeEventListener('click', this.closeDetailsView)
         this.viewElems.showPreview.style.display = 'none'
         this.viewElems.showPreview.innerHTML = ''
+        document.body.style.overflowY = 'auto';
     }
 
     createShowCard = (show, isDetailed) => {
@@ -84,14 +99,18 @@ class tvApp {
                 img = createDOMElem('img', 'card-img-top', null, show.image.medium)
             }
         } else {
-            img = createDOMElem('img', 'card-img-top', null, 'https://via.placeholder.com/210x295')
+            if (isDetailed) {
+                img = createDOMElem('img', 'card-img-top', null, 'https://via.placeholder.com/1058x353')
+            } else {
+                img = createDOMElem('img', 'card-img-top', null, 'https://via.placeholder.com/210x295')
+            }
         }
 
         if (show.summary) {
             if (isDetailed) {
-                p = createDOMElem('p', 'card-text', show.summary)
+                p = createDOMElem('p', 'card-text', show.summary.replace(/<[^>]*>/g, ''))
             } else {
-                p = createDOMElem('p', 'card-text', `${show.summary.slice(0, 80)}...`)
+                p = createDOMElem('p', 'card-text', `${show.summary.slice(0, 80).replace(/<[^>]*>/g, '')}...`)
             }
         } else {
             p = createDOMElem('p', 'card-text', 'There is no smummary for that show yet.')
@@ -101,8 +120,16 @@ class tvApp {
 
         if (isDetailed) {
             btn.addEventListener('click', this.closeDetailsView)
+            btn.classList = 'btn btn-danger'
+            btn.innerText = "Close details"
+            document.body.style.overflowY = 'hidden'
         } else {
             btn.addEventListener('click', this.openDetailsView)
+            btn.classList = 'btn btn-primary align-self-start'
+        }
+
+        if (!isDetailed) {
+            divCardBody.classList = 'd-flex flex-column justify-content-between h-100'
         }
 
         divCard.appendChild(divCardBody)
